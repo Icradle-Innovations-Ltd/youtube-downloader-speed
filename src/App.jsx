@@ -32,7 +32,7 @@ const App = () => {
   }, [isDarkMode]);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/history')
+    fetch('http://localhost:3001/api/history')
       .then(res => res.json())
       .then(data => setHistory(data))
       .catch(err => setError(err.message));
@@ -50,9 +50,13 @@ const App = () => {
     } else {
       console.error('onPauseDownloads is not defined in electronAPI');
     }
-    window.electronAPI.onResumeDownloads(() => {
-      Array.from(downloads.keys()).forEach(downloadId => resumeDownload(downloadId));
-    });
+    if(window.electronAPI?.onResumeDownloads) {
+        window.electronAPI.onResumeDownloads(() => {
+        Array.from(downloads.keys()).forEach(downloadId => resumeDownload(downloadId));
+        });
+    } else {
+      console.error('onResumeDownloads is not defined in electronAPI');
+    }
   }, [downloads]);
 
   const selectSavePath = async () => {
@@ -70,7 +74,7 @@ const App = () => {
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch(`http://localhost:3000/api/video-info?url=${encodeURIComponent(urlList[0])}`);
+      const response = await fetch(`http://localhost:3001/api/video-info?url=${encodeURIComponent(urlList[0])}`);
       const info = await response.json();
       if (info.error) throw new Error(info.error);
       setVideoInfo(info);
@@ -108,7 +112,7 @@ const App = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:3000/api/download', {
+      const response = await fetch('http://localhost:3001/api/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ urls: urlList, format, priority, convertTo, uploadToDrive, savePath })
@@ -132,7 +136,7 @@ const App = () => {
   const monitorProgress = (downloadId, format, options) => {
     const interval = setInterval(async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/progress/${downloadId}`);
+        const response = await fetch(`http://localhost:3001/api/progress/${downloadId}`); 
         const data = await response.json();
         if (data.error) throw new Error(data.error);
 
@@ -151,7 +155,7 @@ const App = () => {
           });
           if (options.convertTo) {
             const outputPath = data.path.replace(/\.\w+$/, `.${options.convertTo}`);
-            await fetch('http://localhost:3000/api/convert', {
+            await fetch('http://localhost:3001/api/convert', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ inputPath: data.path, outputFormat: options.convertTo })
@@ -159,7 +163,7 @@ const App = () => {
             data.path = outputPath;
           }
           if (options.uploadToDrive) {
-            await fetch('http://localhost:3000/api/upload-drive', {
+            await fetch('http://localhost:3001/api/upload-to-drive', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ filePath: data.path, filename: data.filename })
@@ -192,7 +196,7 @@ const App = () => {
 
   const pauseDownload = async (downloadId) => {
     try {
-      await fetch(`http://localhost:3000/api/pause-download/${downloadId}`, { method: 'POST' });
+      await fetch(`http://localhost:3001/api/pause-download/${downloadId}`, { method: 'POST' }); // Modified line
       setDownloads(prev => {
         const newDownloads = new Map(prev);
         const download = newDownloads.get(downloadId);
@@ -208,7 +212,7 @@ const App = () => {
 
   const resumeDownload = async (downloadId) => {
     try {
-      await fetch(`http://localhost:3000/api/resume-download/${downloadId}`, { method: 'POST' });
+      await fetch(`http://localhost:3001/api/resume-download/${downloadId}`, { method: 'POST' }); // Modified line
       setDownloads(prev => {
         const newDownloads = new Map(prev);
         const download = newDownloads.get(downloadId);
@@ -224,7 +228,7 @@ const App = () => {
 
   const cancelDownload = async (downloadId) => {
     try {
-      await fetch(`http://localhost:3000/api/cancel-download/${downloadId}`, { method: 'POST' });
+      await fetch(`http://localhost:3001/api/cancel-download/${downloadId}`, { method: 'POST' }); // Modified line
       setDownloads(prev => {
         const newDownloads = new Map(prev);
         newDownloads.delete(downloadId);
@@ -245,7 +249,7 @@ const App = () => {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/preview', {
+      const response = await fetch('http://localhost:3001/api/preview', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url, format })
@@ -262,7 +266,7 @@ const App = () => {
   const updateHistory = (url, format) => {
     const timestamp = new Date().toLocaleString();
     setHistory(prev => [{ url, format, timestamp }, ...prev.slice(0, 9)]);
-    fetch('http://localhost:3000/api/history', {
+    fetch('http://localhost:3001/api/history', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url, format, timestamp })
@@ -291,7 +295,7 @@ const App = () => {
     reader.onload = async (event) => {
       try {
         const csvContent = event.target.result;
-        const response = await fetch('http://localhost:3000/api/import-csv', {
+        const response = await fetch('http://localhost:3001/api/import-csv', { // Modified line
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ csvContent, savePath })
@@ -393,6 +397,132 @@ const App = () => {
       uploadToDrive: 'Subir a Drive',
       priority: 'Prioridad',
       selectDirectory: 'Seleccionar directorio de guardado'
+    },
+    zh: {
+      fetch: '获取',
+      clear: '清除',
+      download: '下载',
+      play: '播放',
+      cancel: '取消',
+      pause: '暂停',
+      resume: '恢复',
+      duration: '时长',
+      views: '浏览量',
+      uploaded: '已上传',
+      channel: '频道',
+      quality: '质量',
+      format: '格式',
+      size: '大小',
+      preview: '预览',
+      progress: '进度',
+      downloadQueue: '下载队列',
+      downloadHistory: '下载历史',
+      export: '导出',
+      importCsv: '导入CSV',
+      errorDashboard: '错误面板',
+      close: '关闭',
+      proxySettings: '代理设置',
+      testProxy: '测试代理',
+      addProxy: '添加代理',
+      noConversion: '无需转换',
+      uploadToDrive: '上传到云盘',
+      priority: '优先级',
+      selectDirectory: '选择保存目录'
+    },
+    fr: {
+      fetch: 'Récupérer',
+      clear: 'Effacer',
+      download: 'Télécharger',
+      play: 'Lire',
+      cancel: 'Annuler',
+      pause: 'Pause',
+      resume: 'Reprendre',
+      duration: 'Durée',
+      views: 'Vues',
+      uploaded: 'Publié',
+      channel: 'Chaîne',
+      quality: 'Qualité',
+      format: 'Format',
+      size: 'Taille',
+      preview: 'Aperçu',
+      progress: 'Progression',
+      downloadQueue: 'File de téléchargement',
+      downloadHistory: 'Historique de téléchargement',
+      export: 'Exporter',
+      importCsv: 'Importer CSV',
+      errorDashboard: 'Tableau de bord des erreurs',
+      close: 'Fermer',
+      proxySettings: 'Paramètres proxy',
+      testProxy: 'Tester proxy',
+      addProxy: 'Ajouter proxy',
+      noConversion: 'Aucune conversion',
+      uploadToDrive: 'Télécharger sur Drive',
+      priority: 'Priorité',
+      selectDirectory: 'Sélectionner le répertoire de sauvegarde'
+    },
+    sw: {
+      fetch: 'Pakua',
+      clear: 'Futa',
+      download: 'Pakua',
+      play: 'Cheza',
+      cancel: 'Ghairi',
+      pause: 'Sitisha',
+      resume: 'Endelea',
+      duration: 'Muda',
+      views: 'Mara zilizotazamwa',
+      uploaded: 'Iliyopakiwa',
+      channel: 'Chaneli',
+      quality: 'Ubora',
+      format: 'Umbizo',
+      size: 'Ukubwa',
+      preview: 'Hakiki',
+      progress: 'Maendeleo',
+      downloadQueue: 'Foleni ya kupakua',
+      downloadHistory: 'Historia ya kupakua',
+      export: 'Hamisha',
+      importCsv: 'Ingiza CSV',
+      errorDashboard: 'Dashibodi ya Makosa',
+      close: 'Funga',
+      proxySettings: 'Mipangilio ya Wakala',
+      testProxy: 'Jaribu Wakala',
+      addProxy: 'Ongeza Wakala',
+      noConversion: 'Hakuna Ubadilishaji',
+      uploadToDrive: 'Pakia kwenye Hifadhi',
+      priority: 'Kipaumbele',
+      selectDirectory: 'Chagua Saraka ya Kuhifadhi'
+    },
+    lg: {
+      fetch: 'Kunoonyereza',
+      clear: 'Okusangula',
+      download: 'Okuddaabula',
+      play: 'Okuzannya',
+      cancel: 'Okusazaamu',
+      pause: 'Okuyimiriza',
+      resume: 'Okuddamu',
+      duration: 'Obuwanvu',
+      views: 'Okulabibwa',
+      uploaded: 'Eyateekebwawo',
+      channel: 'Mukutu',
+      quality: 'Omutindo',
+      format: 'Enkola',
+      size: 'Obunene',
+      preview: 'Okulagaako',
+      progress: 'Okugenda mu maaso',
+      downloadQueue: 'Olulimi olw\'okuddaabula',
+      downloadHistory: 'Ebyafaayo by\'okuddaabula',
+      export: 'Okufulumya',
+      importCsv: 'Okuyingiza CSV',
+      errorDashboard: 'Olupapula lw\'obuzibu',
+      close: 'Okuggalawo',
+      proxySettings: 'Enteekateeka z\'obuwebembezi',
+      testProxy: 'Okugezesa obuwebembezi',
+      addProxy: 'Okugattawo obuwebembezi',
+      noConversion: 'Tewali Kukyusa',
+      uploadToDrive: 'Okuteeka ku Ddrive',
+      priority: 'Ekikulu',
+      selectDirectory: 'Kulonda ekifo mw\'otereka',
+
+
     }
   };
 
@@ -412,6 +542,10 @@ const App = () => {
           >
             <option value="en">English</option>
             <option value="es">Español</option>
+            <option value="zh">中文</option>
+            <option value="fr">Français</option>
+            <option value="sw">Kiswahili</option>
+            <option value="lg">Luganda</option>
           </select>
           <button
             onClick={() => setIsDarkMode(!isDarkMode)}

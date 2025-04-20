@@ -533,7 +533,8 @@ class YouTubeDownloaderApp {
     });
   }
 
-  start(port = 3000) {
+  start() {
+    const port = process.env.PORT || 3000;
     this.app.listen(port, () => {
       console.log(`Server running on http://localhost:${port}`);
     });
