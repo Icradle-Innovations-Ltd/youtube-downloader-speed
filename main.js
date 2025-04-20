@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Tray, Menu, Notification } = require('electron');
+const { app, BrowserWindow, Tray, Menu } = require('electron');
 const path = require('path');
 
 let mainWindow;
@@ -11,13 +11,20 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
-      nodeIntegration: false
+      nodeIntegration: false,
+      enableRemoteModule: false
     },
     icon: path.join(__dirname, 'public/icon.png')
   });
 
   const startUrl = process.env.ELECTRON_START_URL || `file://${path.join(__dirname, 'build', 'index.html')}`;
   mainWindow.loadURL(startUrl).catch(err => console.error('Failed to load URL:', err));
+  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription) => {
+    console.error('Failed to load:', errorCode, errorDescription);
+  });
+  mainWindow.webContents.on('did-finish-load', () => {
+    console.log('Window loaded successfully');
+  });
   mainWindow.on('closed', () => (mainWindow = null));
 }
 
@@ -29,12 +36,14 @@ app.whenReady().then(() => {
     { 
       label: 'Pause Downloads', 
       click: () => {
+        console.log('Sending pause-downloads IPC');
         mainWindow.webContents.send('pause-downloads');
       }
     },
     { 
       label: 'Resume Downloads', 
       click: () => {
+        console.log('Sending resume-downloads IPC');
         mainWindow.webContents.send('resume-downloads');
       }
     },

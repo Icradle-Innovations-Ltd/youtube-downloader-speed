@@ -44,16 +44,20 @@ const App = () => {
 
   useEffect(() => {
     if (window.electronAPI?.onPauseDownloads) {
+      console.log('onPauseDownloads is defined');
       window.electronAPI.onPauseDownloads(() => {
+        console.log('Pause downloads triggered');
         Array.from(downloads.keys()).forEach(downloadId => pauseDownload(downloadId));
       });
     } else {
       console.error('onPauseDownloads is not defined in electronAPI');
     }
     if(window.electronAPI?.onResumeDownloads) {
-        window.electronAPI.onResumeDownloads(() => {
+      console.log('onResumeDownloads is defined');
+      window.electronAPI.onResumeDownloads(() => {
+        console.log('Resume downloads triggered');
         Array.from(downloads.keys()).forEach(downloadId => resumeDownload(downloadId));
-        });
+      });
     } else {
       console.error('onResumeDownloads is not defined in electronAPI');
     }

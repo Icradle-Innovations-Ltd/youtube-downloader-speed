@@ -2,3 +2,40 @@ node_modules
 node_modules
 package-lock.json
 yarn.lock
+// filepath: c:\Users\amonm\Downloads\youtube-downloader-speed\preload.js
+const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  selectDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
+  onPauseDownloads: (callback) => ipcRenderer.on('pause-download// Accessing electronAPI in App.jsx
+const { onPauseDownloads, onResumeDownloads } = window.electronAPI;
+
+// Example usage
+onPauseDownloads((event) => {
+  console.log('Downloads paused');
+});
+
+onResumeDownloads((event) => {
+  console.log('Downloads resumed');
+});// filepath: c:\Users\amonm\Downloads\youtube-downloader-speed\main.js
+const { app, BrowserWindow } = require('electron');
+const path = require('path');
+
+let mainWindow;
+
+app.on('ready', () => {
+  mainWindow = new BrowserWindow({
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      enableRemoteModule: false,
+    },
+  });
+
+  mainWindow.loadURL('http://localhost:3000'); // Or your app's entry point
+});s', callback),
+  onResumeDownloads: (callback) => ipcRenderer.on('resume-downloads', callback),
+  pauseDownloads: () => ipcRenderer.send('pause-downloads'),
+  resumeDownloads: () => ipcRenderer.send('resume-downloads')
+});<!-- filepath: c:\Users\amonm\Downloads\youtube-downloader-speed\public\index.html -->
+<link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
