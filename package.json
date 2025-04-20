@@ -1,0 +1,67 @@
+{
+  "name": "youtube-downloader",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run react\"",
+    "server": "cross-env PORT=3001 node server/server.js",
+    "react": "react-scripts start",
+    "build": "react-scripts build && npm run build-electron",
+    "build-electron": "electron-builder",
+    "electron": "electron .",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "@tailwindcss/typography": "^0.5.16",
+    "axios": "^1.8.4",
+    "concurrently": "^9.1.2",
+    "cors": "^2.8.5",
+    "electron": "^35.2.0",
+    "express": "^4.21.0",
+    "fluent-ffmpeg": "^2.1.3",
+    "googleapis": "^148.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "^5.0.1",
+    "sqlite3": "^5.1.7",
+    "tailwindcss": "^3.4.14"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "electron-builder": "^26.0.12",
+    "eslint": "^9.0.0"
+  },
+  "proxy": "http://localhost:3001",
+  "build": {
+    "appId": "com.example.youtubedownloader",
+    "productName": "YouTube Downloader",
+    "files": [
+      "build/**/*",
+      "main.js",
+      "preload.js",
+      "server/**/*",
+      "public/icon.png"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "public/icon.png"
+    },
+    "directories": {
+      "output": "dist"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

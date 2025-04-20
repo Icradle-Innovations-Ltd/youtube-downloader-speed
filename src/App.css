@@ -1,0 +1,52 @@
+.tab-btn {
+    padding: 12px 24px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    color: #6b7280;
+  }
+  .tab-btn:hover { background: #f9fafb; color: #ec4899; }
+  .tab-btn.active {
+    background: #ec4899;
+    color: white;
+  }
+  .tab-content { transition: all 0.4s ease; }
+  .progress-bar {
+    height: 8px;
+    background: #ec4899;
+    border-radius: 4px;
+    transition: width 0.3s ease;
+  }
+  .history-item:hover, .queue-item:hover {
+    background: #f3f4f6;
+    cursor: pointer;
+  }
+  .dark .history-item:hover, .dark .queue-item:hover {
+    background: #374151;
+  }
+  .gradient-bg {
+    background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  }
+  .card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease;
+  }
+  .dark .card {
+    background: #1f2937;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+  }
+  .collapsible-header {
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .collapsible-header:hover {
+    background: #f9fafb;
+  }
+  .dark .collapsible-header:hover {
+    background: #374151;
+  }
